@@ -14,7 +14,7 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) GetUserByID(userID string) (model.User, error) {
+func (r *UserRepository) GetUser(userID string) (model.User, error) {
 	query := `SELECT * FROM users WHERE id = $1`
 
 	var user model.User
@@ -23,7 +23,7 @@ func (r *UserRepository) GetUserByID(userID string) (model.User, error) {
 	return user, err
 }
 
-func (r *UserRepository) SetIsActiveByUserID(userID string, isActive bool) (model.User, error) {
+func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, error) {
 	query := `
 		UPDATE users
 		SET is_active = $1
@@ -37,7 +37,7 @@ func (r *UserRepository) SetIsActiveByUserID(userID string, isActive bool) (mode
 	return result, err
 }
 
-func (r *UserRepository) GetAssignedPullRequestsByUserID(userID string) ([]model.PullRequest, error) {
+func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullRequest, error) {
 	query := `
 		SELECT pr.*
 		FROM pull_requests pr

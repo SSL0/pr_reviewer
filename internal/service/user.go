@@ -18,7 +18,7 @@ func NewUserService(repo *repository.Repository) *UserService {
 }
 
 func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, error) {
-	user, err := s.repo.SetIsActiveByUserID(userID, isActive)
+	user, err := s.repo.SetIsActive(userID, isActive)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.User{}, ErrUserNotFound
@@ -30,14 +30,14 @@ func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, err
 	return user, nil
 }
 
-func (s *UserService) GetReview(userID string) (dto.GetReviewResponse, error) {
-	prs, err := s.repo.GetAssignedPullRequestsByUserID(userID)
+func (s *UserService) GetReview(userID string) (dto.UserGetReviewResponse, error) {
+	prs, err := s.repo.GetAssignedPullRequests(userID)
 
 	if err != nil {
-		return dto.GetReviewResponse{}, err
+		return dto.UserGetReviewResponse{}, err
 	}
 
-	result := dto.GetReviewResponse{
+	result := dto.UserGetReviewResponse{
 		UserID:       userID,
 		PullRequests: []dto.PullRequestShort{},
 	}

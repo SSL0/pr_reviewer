@@ -7,8 +7,8 @@ import (
 )
 
 type User interface {
-	SetIsActiveByUserID(userID string, isActive bool) (model.User, error)
-	GetAssignedPullRequestsByUserID(userID string) ([]model.PullRequest, error)
+	SetIsActive(userID string, isActive bool) (model.User, error)
+	GetAssignedPullRequests(userID string) ([]model.PullRequest, error)
 }
 
 type Repository struct {

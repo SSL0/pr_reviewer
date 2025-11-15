@@ -13,7 +13,7 @@ type Team interface {
 
 type User interface {
 	SetIsActive(userID string, isActive bool) (model.User, error)
-	GetReview(userID string) (dto.GetReviewResponse, error)
+	GetReview(userID string) (dto.UserGetReviewResponse, error)
 }
 
 type PullReqeust interface {
