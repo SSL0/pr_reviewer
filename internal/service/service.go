@@ -7,13 +7,13 @@ import (
 )
 
 type Team interface {
-	Add(team model.Team) (model.Team, error)
-	Get(teamName string) (model.Team, error)
+	Add(team dto.Team) (dto.Team, error)
+	Get(teamName string) (dto.Team, error)
 }
 
 type User interface {
 	SetIsActive(userID string, isActive bool) (model.User, error)
-	GetReview(userID string) (dto.UserGetReviewResponse, error)
+	GetReview(userID string) (dto.UserReviewResponse, error)
 }
 
 type PullReqeust interface {
