@@ -30,21 +30,21 @@ func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, err
 	return user, nil
 }
 
-func (s *UserService) GetReview(userID string) (dto.UserGetReviewResponse, error) {
+func (s *UserService) GetReview(userID string) (dto.UserReviewResponse, error) {
 	prs, err := s.repo.GetAssignedPullRequests(userID)
 
 	if err != nil {
-		return dto.UserGetReviewResponse{}, err
+		return dto.UserReviewResponse{}, err
 	}
 
-	result := dto.UserGetReviewResponse{
+	getReviewResponse := dto.UserReviewResponse{
 		UserID:       userID,
 		PullRequests: []dto.PullRequestShort{},
 	}
 
 	for _, pr := range prs {
-		result.PullRequests = append(
-			result.PullRequests,
+		getReviewResponse.PullRequests = append(
+			getReviewResponse.PullRequests,
 			dto.PullRequestShort{
 				PullRequestID:   pr.ID,
 				PullRequestName: pr.Name,
@@ -54,5 +54,5 @@ func (s *UserService) GetReview(userID string) (dto.UserGetReviewResponse, error
 		)
 	}
 
-	return result, err
+	return getReviewResponse, err
 }

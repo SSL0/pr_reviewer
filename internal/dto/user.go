@@ -1,6 +1,6 @@
 package dto
 
-type UserGetReviewResponse struct {
+type UserReviewResponse struct {
 	UserID       string             `json:"user_id"`
 	PullRequests []PullRequestShort `json:"pull_requests"`
 }
