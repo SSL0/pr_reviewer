@@ -47,7 +47,7 @@ func (s *TeamService) Get(teamName string) (dto.Team, error) {
 	}
 
 	if len(*users) == 0 {
-		return dto.Team{}, ErrTeamNotFound
+		return dto.Team{}, ErrResourceNotFound
 	}
 
 	teamResponse := dto.Team{

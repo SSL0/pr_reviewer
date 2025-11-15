@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/model"
 	"pr_reviewer/internal/repository"
 )
@@ -15,8 +17,32 @@ func NewPullRequestService(repo *repository.Repository) *PullRequestService {
 	}
 }
 
-func (s *PullRequestService) Create(pullRequestID string, pullRequestName string, authorID string) (model.PullRequest, error) {
-	return model.PullRequest{}, nil
+func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error) {
+	pr, reviewers, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
+	if err != nil {
+
+		if errors.Is(err, repository.ErrPRExists) {
+			return dto.PullRequest{}, ErrPRExists
+		}
+
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return dto.PullRequest{}, ErrResourceNotFound
+		}
+
+		return dto.PullRequest{}, err
+	}
+
+	dtoPR := dto.PullRequest{
+		PullRequestID:   pullRequestID,
+		PullRequestName: pullRequestName,
+		AuthorID:        authorID,
+		Status:          "OPEN",
+		CreatedAt:       pr.CreatedAt,
+	}
+	for _, r := range reviewers {
+		dtoPR.AssignedReviewers = append(dtoPR.AssignedReviewers, r)
+	}
+	return dtoPR, nil
 }
 
 func (s *PullRequestService) Merge(pullReqeustID string) (model.PullRequest, error) {

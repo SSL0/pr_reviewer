@@ -21,7 +21,7 @@ func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, err
 	user, err := s.repo.SetIsActive(userID, isActive)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return model.User{}, ErrUserNotFound
+			return model.User{}, ErrResourceNotFound
 		}
 
 		return model.User{}, err

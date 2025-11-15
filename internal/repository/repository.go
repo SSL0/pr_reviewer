@@ -16,14 +16,20 @@ type Team interface {
 	GetTeamMembers(teamName string) (*[]model.User, error)
 }
 
+type PullRequest interface {
+	CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error)
+}
+
 type Repository struct {
 	User
 	Team
+	PullRequest
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		User: NewUserRepository(db),
-		Team: NewTeamRepository(db),
+		User:        NewUserRepository(db),
+		Team:        NewTeamRepository(db),
+		PullRequest: NewPullRequestRepository(db),
 	}
 }

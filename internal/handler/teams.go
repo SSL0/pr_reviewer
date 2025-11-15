@@ -51,7 +51,7 @@ func (h *Handler) get(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 
-		if errors.Is(err, service.ErrTeamNotFound) {
+		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
 			return
 		}

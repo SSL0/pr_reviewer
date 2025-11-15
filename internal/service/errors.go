@@ -3,7 +3,7 @@ package service
 import "errors"
 
 var (
-	ErrUserNotFound = errors.New("user not found")
-	ErrTeamNotFound = errors.New("team not found")
-	ErrTeamExists   = errors.New("team already exists")
+	ErrTeamExists       = errors.New("team already exists")
+	ErrPRExists         = errors.New("PR id already exists")
+	ErrResourceNotFound = errors.New("resource not found")
 )
