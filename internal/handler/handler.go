@@ -8,6 +8,20 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+const (
+	ErrorCodeTeamExists  = "TEAM_EXISTS"
+	ErrorCodePRExists    = "PR_EXISTS"
+	ErrorCodePRMerged    = "PR_MERGED"
+	ErrorCodeNotAssigned = "NOT_ASSIGNED"
+	ErrorCodeNoCandidate = "NO_CANDIDATE"
+	ErrorCodeNotFound    = "NOT_FOUND"
+)
+
+type ErrorResponse struct {
+	Code    string
+	Message string
+}
+
 type Handler struct {
 	services *service.Service
 }
@@ -22,9 +36,9 @@ func (h *Handler) RegisterRoutes() *gin.Engine {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := router.Group("/api/v1")
 	{
-		RegisterTeams(api)
-		RegisterUsers(api)
-		RegisterPullRequsets(api)
+		h.RegisterTeams(api)
+		h.RegisterUsers(api)
+		h.RegisterPullRequsets(api)
 	}
 
 	return router

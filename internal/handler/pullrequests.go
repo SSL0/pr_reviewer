@@ -9,20 +9,20 @@ const (
 	StatusMerge = "MERGED"
 )
 
-func RegisterPullRequsets(r *gin.RouterGroup) {
-	r.POST("/pullRequest/create", create)
-	r.POST("/pullRequest/merge", merge)
-	r.POST("/pullRequest/reassign", reassign)
+func (h *Handler) RegisterPullRequsets(r *gin.RouterGroup) {
+	r.POST("/pullRequest/create", h.create)
+	r.POST("/pullRequest/merge", h.merge)
+	r.POST("/pullRequest/reassign", h.reassign)
 }
 
-func create(c *gin.Context) {
-
-}
-
-func merge(c *gin.Context) {
+func (h *Handler) create(c *gin.Context) {
 
 }
 
-func reassign(c *gin.Context) {
+func (h *Handler) merge(c *gin.Context) {
+
+}
+
+func (h *Handler) reassign(c *gin.Context) {
 
 }

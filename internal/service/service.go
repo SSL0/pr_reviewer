@@ -1,6 +1,7 @@
 package service
 
 import (
+	"pr_service/internal/dto"
 	"pr_service/internal/model"
 	"pr_service/internal/repository"
 )
@@ -12,7 +13,7 @@ type Team interface {
 
 type User interface {
 	SetIsActive(userID string, isActive bool) (model.User, error)
-	GetReview(userID string) (string, model.PullRequestShort)
+	GetReview(userID string) (dto.GetReviewResponse, error)
 }
 
 type PullReqeust interface {

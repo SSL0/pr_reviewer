@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"pr_service/internal/dto"
 	"pr_service/internal/model"
 	"pr_service/internal/repository"
 )
@@ -16,9 +18,41 @@ func NewUserService(repo *repository.Repository) *UserService {
 }
 
 func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, error) {
-	return model.User{}, nil
+	user, err := s.repo.SetIsActiveByUserID(userID, isActive)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return model.User{}, ErrUserNotFound
+		}
+
+		return model.User{}, err
+	}
+
+	return user, nil
 }
 
-func (s *UserService) GetReview(userID string) (string, model.PullRequestShort) {
-	return "", model.PullRequestShort{}
+func (s *UserService) GetReview(userID string) (dto.GetReviewResponse, error) {
+	prs, err := s.repo.GetAssignedPullRequestsByUserID(userID)
+
+	if err != nil {
+		return dto.GetReviewResponse{}, err
+	}
+
+	result := dto.GetReviewResponse{
+		UserID:       userID,
+		PullRequests: []dto.PullRequestShort{},
+	}
+
+	for _, pr := range prs {
+		result.PullRequests = append(
+			result.PullRequests,
+			dto.PullRequestShort{
+				PullRequestID:   pr.ID,
+				PullRequestName: pr.Name,
+				AuthorID:        pr.AuthorID,
+				Status:          pr.Status,
+			},
+		)
+	}
+
+	return result, err
 }
