@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"pr_service/internal/dto"
 	"pr_service/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -14,30 +15,18 @@ func (h *Handler) RegisterUsers(r *gin.RouterGroup) {
 	r.GET("/users/getReview", h.getReview)
 }
 
-type SetIsActiveBody struct {
-	UserID   string `json:"user_id"`
-	IsActive bool   `json:"is_active"`
-}
-
 func (h *Handler) setIsActive(c *gin.Context) {
-	var body SetIsActiveBody
+	var req dto.SetIsActiveRequest
 
-	if err := c.ShouldBindBodyWithJSON(&body); err != nil {
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, "invalid body data")
 		return
 	}
 
-	user, err := h.services.SetIsActive(body.UserID, body.IsActive)
+	user, err := h.services.SetIsActive(req.UserID, req.IsActive)
 	if err != nil {
 		if errors.Is(err, service.ErrUserNotFound) {
-
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": ErrorResponse{
-					Code:    ErrorCodeNotFound,
-					Message: "resource not found",
-				},
-			})
-
+			c.JSON(http.StatusBadRequest, h.jsonError(ErrorCodeNotFound, "resource not found"))
 			return
 		}
 		log.Println(err)

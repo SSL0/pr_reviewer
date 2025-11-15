@@ -43,3 +43,12 @@ func (h *Handler) RegisterRoutes() *gin.Engine {
 
 	return router
 }
+
+func (h *Handler) jsonError(code string, message string) gin.H {
+	return gin.H{
+		"error": ErrorResponse{
+			Code:    code,
+			Message: message,
+		},
+	}
+}
