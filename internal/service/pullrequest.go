@@ -1,8 +1,8 @@
 package service
 
 import (
-	"pr_service/internal/model"
-	"pr_service/internal/repository"
+	"pr_reviewer/internal/model"
+	"pr_reviewer/internal/repository"
 )
 
 type PullRequestService struct {

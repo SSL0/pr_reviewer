@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"pr_service/internal/service"
+	"pr_reviewer/internal/service"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"

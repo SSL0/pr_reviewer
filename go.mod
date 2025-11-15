@@ -1,4 +1,4 @@
-module pr_service
+module pr_reviewer
 
 go 1.25.4
 

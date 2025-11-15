@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"log"
-	"pr_service/internal/config"
-	"pr_service/internal/handler"
-	"pr_service/internal/repository"
-	"pr_service/internal/service"
+	"pr_reviewer/internal/config"
+	"pr_reviewer/internal/handler"
+	"pr_reviewer/internal/repository"
+	"pr_reviewer/internal/service"
 )
 
 func main() {

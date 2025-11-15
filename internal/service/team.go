@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"pr_service/internal/dto"
-	"pr_service/internal/model"
-	"pr_service/internal/repository"
+	"pr_reviewer/internal/dto"
+	"pr_reviewer/internal/model"
+	"pr_reviewer/internal/repository"
 )
 
 type TeamService struct {

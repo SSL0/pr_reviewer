@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"pr_service/internal/dto"
-	"pr_service/internal/service"
+	"pr_reviewer/internal/dto"
+	"pr_reviewer/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

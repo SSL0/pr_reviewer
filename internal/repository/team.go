@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"pr_service/internal/model"
+	"pr_reviewer/internal/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
