@@ -1,0 +1,5 @@
+{
+	"version": 1.0,
+	"db_url": "postgres://client:secretPassword@localhost:5432/database?sslmode=disable",
+	"listening_address": ":8080"
+}
