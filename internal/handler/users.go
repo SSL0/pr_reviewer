@@ -26,7 +26,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 	user, err := h.services.SetIsActive(req.UserID, req.IsActive)
 	if err != nil {
 		if errors.Is(err, service.ErrUserNotFound) {
-			c.JSON(http.StatusBadRequest, h.jsonError(ErrorCodeNotFound, "resource not found"))
+			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
 			return
 		}
 		log.Println(err)
