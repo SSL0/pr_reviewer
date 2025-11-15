@@ -1,6 +1,7 @@
 CREATE TABLE users (
-	id SERIAL PRIMARY KEY,
+	id TEXT PRIMARY KEY,
 	username TEXT NOT NULL,
+	team_name TEXT NOT NULL REFERENCES teams(name) ON DELETE CASCADE,
 	is_active BOOLEAN NOT NULL
 );
 
