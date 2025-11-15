@@ -50,6 +50,7 @@ func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullReq
 	if err != nil {
 		return []model.PullRequest{}, err
 	}
+	defer rows.Close()
 
 	result := []model.PullRequest{}
 

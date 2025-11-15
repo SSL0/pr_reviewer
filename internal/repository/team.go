@@ -58,6 +58,7 @@ func (r *TeamRepository) GetTeamMembers(teamName string) (*[]model.User, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var user model.User
