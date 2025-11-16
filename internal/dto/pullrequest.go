@@ -37,3 +37,21 @@ type MergePullRequestResponse struct {
 	AssignedReviewers []string   `json:"assigned_reviewers"`
 	MergedAt          *time.Time `json:"merged_at"`
 }
+
+type ReassignPullRequestRequest struct {
+	PullRequestID string `json:"pull_request_id"`
+	OldReviewerID string `json:"old_reviewer_id"`
+}
+
+type ReassignPullRequestResponse struct {
+	PR         PullRequestShortWithReviewers `json:"pr"`
+	ReplacedBy string                        `json:"replacedBy"`
+}
+
+type PullRequestShortWithReviewers struct {
+	PullRequestID     string   `json:"pull_request_id"`
+	PullRequestName   string   `json:"pull_request_name"`
+	AuthorID          string   `json:"author_id"`
+	Status            string   `json:"status"`
+	AssignedReviewers []string `json:"assigned_reviewers"`
+}

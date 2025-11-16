@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"pr_reviewer/internal/domain"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/model"
 	"pr_reviewer/internal/repository"
@@ -17,7 +18,7 @@ func NewTeamService(repo *repository.Repository) *TeamService {
 	}
 }
 
-func (s *TeamService) Add(team dto.Team) (dto.Team, error) {
+func (s *TeamService) Add(team domain.Team) (dto.Team, error) {
 	var teamUsers []model.User
 
 	for _, m := range team.Members {
@@ -36,22 +37,32 @@ func (s *TeamService) Add(team dto.Team) (dto.Team, error) {
 		return dto.Team{}, ErrTeamExists
 	}
 
-	return team, err
+	var TeamMembersDTO []dto.TeamMember
+
+	for _, m := range team.Members {
+		TeamMembersDTO = append(TeamMembersDTO,
+			dto.TeamMember{
+				UserID:   m.UserID,
+				Username: m.Username,
+				IsActive: m.IsActive,
+			})
+	}
+
+	return dto.Team{
+		TeamName: team.TeamName,
+		Members:  TeamMembersDTO,
+	}, err
 }
 
 func (s *TeamService) Get(teamName string) (dto.Team, error) {
-	users, err := s.repo.GetTeamMembers(teamName)
+	team, users, err := s.repo.GetTeamAndMembers(teamName)
 
 	if err != nil {
 		return dto.Team{}, err
 	}
 
-	if len(*users) == 0 {
-		return dto.Team{}, ErrResourceNotFound
-	}
-
 	teamResponse := dto.Team{
-		TeamName: teamName,
+		TeamName: team.Name,
 		Members:  []dto.TeamMember{},
 	}
 

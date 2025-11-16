@@ -34,6 +34,9 @@ func (s *UserService) GetReview(userID string) (dto.UserReviewResponse, error) {
 	prs, err := s.repo.GetAssignedPullRequests(userID)
 
 	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return dto.UserReviewResponse{}, ErrResourceNotFound
+		}
 		return dto.UserReviewResponse{}, err
 	}
 

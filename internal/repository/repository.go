@@ -13,12 +13,13 @@ type User interface {
 
 type Team interface {
 	AddTeam(teamName string, members *[]model.User) error
-	GetTeamMembers(teamName string) (*[]model.User, error)
+	GetTeamAndMembers(teamName string) (model.Team, *[]model.User, error)
 }
 
 type PullRequest interface {
 	CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error)
 	SetPullRequestStatus(id string, status model.PullRequestStatus) (model.PullRequest, []string, error)
+	ReassignPullRequestReviewer(pullRequestID string, oldReviewerID string) (model.PullRequest, []string, string, error)
 }
 
 type Repository struct {

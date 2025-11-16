@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"log"
 	"pr_reviewer/internal/model"
 
 	"github.com/jmoiron/sqlx"
@@ -38,29 +39,32 @@ func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, 
 }
 
 func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullRequest, error) {
-	query := `
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
+
+	var exsits bool
+	err := r.db.Get(&exsits, query, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !exsits {
+		return nil, ErrUserNotFound
+	}
+
+	query = `
 		SELECT pr.*
 		FROM pull_requests pr
 		JOIN pull_request_reviewers prr
 		  ON pr.id = prr.pull_request_id
 		WHERE prr.reviewer_id = $1;
 	`
+	var result []model.PullRequest
+	err = r.db.Select(&result, query, userID)
 
-	rows, err := r.db.Queryx(query, userID)
 	if err != nil {
+		log.Println(err)
 		return []model.PullRequest{}, err
-	}
-	defer rows.Close()
-
-	result := []model.PullRequest{}
-
-	for rows.Next() {
-		var pr model.PullRequest
-		if err := rows.StructScan(&pr); err != nil {
-			return []model.PullRequest{}, err
-		}
-
-		result = append(result, pr)
 	}
 
 	return result, nil

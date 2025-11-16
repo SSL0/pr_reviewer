@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"pr_reviewer/internal/domain"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/service"
 
@@ -28,12 +29,26 @@ func (h *Handler) add(c *gin.Context) {
 		return
 	}
 
-	team, err := h.services.Add(req)
+	var domainTeamMembers []domain.TeamMember
+
+	for _, m := range req.Members {
+		domainTeamMembers = append(domainTeamMembers,
+			domain.TeamMember{
+				UserID:   m.UserID,
+				Username: m.Username,
+				IsActive: m.IsActive,
+			})
+
+	}
+
+	team, err := h.services.Add(
+		domain.Team{TeamName: req.TeamName, Members: domainTeamMembers},
+	)
 
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, service.ErrTeamExists) {
-			c.JSON(http.StatusBadRequest, h.jsonError(ErrorCodeTeamExists, "team_name already exists"))
+			c.JSON(http.StatusBadRequest, h.jsonError(ErrCodeTeamExists, "team_name already exists"))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
@@ -52,7 +67,7 @@ func (h *Handler) get(c *gin.Context) {
 		log.Println(err)
 
 		if errors.Is(err, service.ErrResourceNotFound) {
-			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
+			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 

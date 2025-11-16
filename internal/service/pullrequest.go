@@ -18,7 +18,7 @@ func NewPullRequestService(repo *repository.Repository) *PullRequestService {
 }
 
 func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error) {
-	pr, reviewers, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
+	pr, reviewersIDs, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
 	if err != nil {
 
 		if errors.Is(err, repository.ErrPRExists) {
@@ -33,13 +33,14 @@ func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID str
 	}
 
 	dtoPR := dto.PullRequest{
-		PullRequestID:   pullRequestID,
-		PullRequestName: pullRequestName,
-		AuthorID:        authorID,
-		Status:          "OPEN",
-		CreatedAt:       pr.CreatedAt,
+		PullRequestID:     pullRequestID,
+		PullRequestName:   pullRequestName,
+		AuthorID:          authorID,
+		Status:            "OPEN",
+		AssignedReviewers: []string{},
+		CreatedAt:         pr.CreatedAt,
 	}
-	for _, r := range reviewers {
+	for _, r := range reviewersIDs {
 		dtoPR.AssignedReviewers = append(dtoPR.AssignedReviewers, r)
 	}
 	return dtoPR, nil
@@ -70,6 +71,43 @@ func (s *PullRequestService) Merge(pullReqeustID string) (dto.MergePullRequestRe
 	return mergePRResponse, nil
 }
 
-func (s *PullRequestService) Reassign(pullRequestID string, oldUserID string) (model.PullRequest, string, error) {
-	return model.PullRequest{}, "", nil
+func (s *PullRequestService) Reassign(pullRequestID string, oldUserID string) (
+	dto.ReassignPullRequestResponse, error,
+) {
+	pr, reviewers, replacedBy, err := s.repo.ReassignPullRequestReviewer(pullRequestID, oldUserID)
+	if err != nil {
+		if errors.Is(err, repository.ErrPRMerged) {
+			return dto.ReassignPullRequestResponse{}, ErrPRMerged
+		}
+
+		if errors.Is(err, repository.ErrPRNotFound) {
+			return dto.ReassignPullRequestResponse{}, ErrResourceNotFound
+		}
+
+		if errors.Is(err, repository.ErrNotAssigned) {
+			return dto.ReassignPullRequestResponse{}, ErrNotAssigned
+		}
+
+		if errors.Is(err, repository.ErrNoCanditate) {
+			return dto.ReassignPullRequestResponse{}, ErrNoCanditate
+		}
+
+		return dto.ReassignPullRequestResponse{}, err
+	}
+
+	reassignPRResponse := dto.ReassignPullRequestResponse{
+		PR: dto.PullRequestShortWithReviewers{
+			PullRequestID:   pr.ID,
+			PullRequestName: pr.Name,
+			AuthorID:        pr.AuthorID,
+			Status:          string(pr.Status),
+		},
+		ReplacedBy: replacedBy,
+	}
+
+	for _, r := range reviewers {
+		reassignPRResponse.PR.AssignedReviewers = append(reassignPRResponse.PR.AssignedReviewers, r)
+	}
+
+	return reassignPRResponse, nil
 }

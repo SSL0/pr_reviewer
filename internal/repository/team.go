@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"pr_reviewer/internal/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -55,27 +57,29 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
 	return tx.Commit()
 }
 
-func (r *TeamRepository) GetTeamMembers(teamName string) (*[]model.User, error) {
-	query := `
+func (r *TeamRepository) GetTeamAndMembers(teamName string) (model.Team, *[]model.User, error) {
+	query := `SELECT * FROM teams WHERE name = $1`
+
+	var team model.Team
+	err := r.db.Get(&team, query, teamName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Team{}, nil, ErrTeamNotFound
+		}
+
+		return model.Team{}, nil, err
+	}
+
+	query = `
 		SELECT * FROM users
 		WHERE team_name = $1;
 	`
 
 	var result []model.User
-	rows, err := r.db.Queryx(query, teamName)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var user model.User
-
-		if err := rows.StructScan(&user); err != nil {
-			return nil, err
-		}
-		result = append(result, user)
+	err = r.db.Select(&result, query, teamName)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return model.Team{}, nil, err
 	}
 
-	return &result, nil
+	return team, &result, nil
 }

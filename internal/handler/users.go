@@ -27,7 +27,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
-			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
+			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
@@ -44,6 +44,10 @@ func (h *Handler) getReview(c *gin.Context) {
 	res, err := h.services.GetReview(userID)
 	if err != nil {
 		log.Println(err)
+		if errors.Is(err, service.ErrResourceNotFound) {
+			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
 		return
 	}

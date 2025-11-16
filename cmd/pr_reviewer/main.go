@@ -25,8 +25,8 @@ func main() {
 	defer postgres.Close()
 
 	repo := repository.NewRepository(postgres)
-	service := service.NewService(repo)
-	handler := handler.NewHandler(service)
+	svc := service.NewService(repo)
+	handler := handler.NewHandler(svc)
 
 	err = handler.RegisterRoutes().Run(cfg.ListeningAddress)
 	if err != nil {

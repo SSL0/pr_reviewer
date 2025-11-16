@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	ErrorCodeTeamExists  = "TEAM_EXISTS"
-	ErrorCodePRExists    = "PR_EXISTS"
-	ErrorCodePRMerged    = "PR_MERGED"
-	ErrorCodeNotAssigned = "NOT_ASSIGNED"
-	ErrorCodeNoCandidate = "NO_CANDIDATE"
-	ErrorCodeNotFound    = "NOT_FOUND"
+	ErrCodeTeamExists  = "TEAM_EXISTS"
+	ErrCodePRExists    = "PR_EXISTS"
+	ErrCodePRMerged    = "PR_MERGED"
+	ErrCodeNotAssigned = "NOT_ASSIGNED"
+	ErrCodeNoCandidate = "NO_CANDIDATE"
+	ErrCodeNotFound    = "NOT_FOUND"
 )
 
 type ErrorResponse struct {
