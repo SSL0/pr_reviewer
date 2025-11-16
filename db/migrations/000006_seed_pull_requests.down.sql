@@ -1,1 +1,0 @@
-TRUNCATE TABLE pull_requests CASCADE;
