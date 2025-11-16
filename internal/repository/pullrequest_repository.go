@@ -163,15 +163,22 @@ func (r *PullRequestRepository) ReassignPullRequestReviewer(
 
 	var newReviewerID string
 	query = `
-		SELECT id
-		FROM users
-		WHERE team_name = (SELECT team_name FROM users WHERE id=$1)
-			AND is_active = TRUE
-			AND id NOT IN (
-				SELECT reviewer_id FROM pull_request_reviewers WHERE pull_request_id=$2
-			)
+		SELECT u.id
+		FROM users u
+		WHERE u.team_name = (
+		        SELECT team_name FROM users WHERE id = $1
+		    )
+		    AND u.is_active = TRUE
+		    AND u.id <> (
+		        SELECT author_id FROM pull_requests WHERE id = $2
+		    )
+		    AND u.id NOT IN (
+		        SELECT reviewer_id
+		        FROM pull_request_reviewers
+		        WHERE pull_request_id = $2
+		    )
 		ORDER BY RANDOM()
-		LIMIT 1
+		LIMIT 1;
 	`
 	err = tx.Get(&newReviewerID, query, pr.AuthorID, pullRequestID)
 	if err != nil {
