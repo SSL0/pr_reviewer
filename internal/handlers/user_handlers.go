@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/service"
@@ -25,17 +24,16 @@ func (h *Handler) setIsActive(c *gin.Context) {
 
 	user, err := h.services.SetUserIsActive(req.UserID, req.IsActive)
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to create pull request", "error", err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, user)
-
 }
 
 func (h *Handler) getReview(c *gin.Context) {
@@ -43,12 +41,12 @@ func (h *Handler) getReview(c *gin.Context) {
 
 	res, err := h.services.GetUserReviews(userID)
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to create pull request", "error", err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, res)

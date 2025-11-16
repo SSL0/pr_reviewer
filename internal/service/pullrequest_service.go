@@ -17,10 +17,11 @@ func NewPullRequestService(repo *repository.Repository) *PullRequestService {
 	}
 }
 
-func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error) {
+func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (
+	dto.PullRequest, error,
+) {
 	pr, reviewersIDs, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
 	if err != nil {
-
 		if errors.Is(err, repository.ErrPRExists) {
 			return dto.PullRequest{}, ErrPRExists
 		}
@@ -40,14 +41,12 @@ func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, a
 		AssignedReviewers: []string{},
 		CreatedAt:         pr.CreatedAt,
 	}
-	for _, r := range reviewersIDs {
-		dtoPR.AssignedReviewers = append(dtoPR.AssignedReviewers, r)
-	}
+	dtoPR.AssignedReviewers = append(dtoPR.AssignedReviewers, reviewersIDs...)
 	return dtoPR, nil
 }
 
 func (s *PullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error) {
-	pr, reviewers, err := s.repo.SetPullRequestStatus(pullReqeustID, model.PullRequestMerged)
+	pr, reviewersIDs, err := s.repo.SetPullRequestStatus(pullReqeustID, model.PullRequestMerged)
 
 	if err != nil {
 		if errors.Is(err, repository.ErrPRNotFound) {
@@ -63,11 +62,7 @@ func (s *PullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePu
 		Status:          string(pr.Status),
 		MergedAt:        pr.MergedAt,
 	}
-
-	for _, r := range reviewers {
-		mergePRResponse.AssignedReviewers = append(mergePRResponse.AssignedReviewers, r)
-	}
-
+	mergePRResponse.AssignedReviewers = append(mergePRResponse.AssignedReviewers, reviewersIDs...)
 	return mergePRResponse, nil
 }
 
@@ -105,9 +100,7 @@ func (s *PullRequestService) ReassignPullRequestReviewer(pullRequestID string, o
 		ReplacedBy: replacedBy,
 	}
 
-	for _, r := range reviewers {
-		reassignPRResponse.PR.AssignedReviewers = append(reassignPRResponse.PR.AssignedReviewers, r)
-	}
+	reassignPRResponse.PR.AssignedReviewers = append(reassignPRResponse.PR.AssignedReviewers, reviewers...)
 
 	return reassignPRResponse, nil
 }

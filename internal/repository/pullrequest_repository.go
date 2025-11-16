@@ -1,13 +1,12 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"pr_reviewer/internal/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -39,7 +38,8 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 	var pr model.PullRequest
 	err = tx.Get(&pr, query, id, name, authorID)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
 			switch pgErr.Code {
 			case UniqueViolationCode:
 				return model.PullRequest{}, nil, ErrPRExists
@@ -65,9 +65,8 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 	query = `INSERT INTO pull_request_reviewers(pull_request_id, reviewer_id) VALUES ($1, $2)`
 
 	for _, rID := range reviewersIDs {
-		_, err := tx.Exec(query, id, rID)
+		_, err = tx.ExecContext(context.Background(), query, id, rID)
 		if err != nil {
-			log.Println(err)
 			return model.PullRequest{}, nil, err
 		}
 	}
@@ -79,7 +78,9 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 	return pr, reviewersIDs, nil
 }
 
-func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.PullRequestStatus) (model.PullRequest, []string, error) {
+func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.PullRequestStatus) (
+	model.PullRequest, []string, error,
+) {
 	query := `
 		UPDATE pull_requests
 		SET status = $1, merged_at = COALESCE(merged_at, NOW())
@@ -103,23 +104,13 @@ func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.Pul
 		SELECT reviewer_id FROM pull_request_reviewers
 	 	WHERE pull_request_id = $1
 	`
-	rows, err := r.db.Queryx(query, id)
-
+	var reviewersIDs []string
+	err = r.db.Select(&reviewersIDs, query, id)
 	if err != nil {
 		return model.PullRequest{}, nil, err
 	}
 
-	var reviewers []string
-
-	for rows.Next() {
-		var r string
-		if err := rows.Scan(&r); err != nil {
-			return model.PullRequest{}, nil, err
-		}
-		reviewers = append(reviewers, r)
-	}
-
-	return pr, reviewers, nil
+	return pr, reviewersIDs, nil
 }
 
 func (r *PullRequestRepository) ReassignPullRequestReviewer(
@@ -132,11 +123,14 @@ func (r *PullRequestRepository) ReassignPullRequestReviewer(
 	}
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 		}
 	}()
 
-	query := `SELECT * FROM pull_requests WHERE id=$1`
+	query := `
+		SELECT id, name, author_id, status, created_at, merged_at
+		FROM pull_requests WHERE id=$1
+	`
 
 	var pr model.PullRequest
 	err = tx.Get(&pr, query, pullRequestID)
@@ -193,7 +187,7 @@ func (r *PullRequestRepository) ReassignPullRequestReviewer(
 		WHERE pull_request_id=$2 AND reviewer_id=$3
 	`
 
-	_, err = tx.Exec(query, newReviewerID, pullRequestID, oldReviewerID)
+	_, err = tx.ExecContext(context.Background(), query, newReviewerID, pullRequestID, oldReviewerID)
 	if err != nil {
 		return model.PullRequest{}, nil, "", err
 	}

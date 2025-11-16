@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/service"
@@ -34,7 +33,6 @@ func (h *Handler) create(c *gin.Context) {
 	res, err := h.services.CreatePullRequest(req.PullRequestID, req.PullRequestName, req.AuthorID)
 
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
@@ -46,6 +44,7 @@ func (h *Handler) create(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to create pull request", "error", err.Error())
 		return
 	}
 
@@ -63,13 +62,13 @@ func (h *Handler) merge(c *gin.Context) {
 	res, err := h.services.MergePullRequest(req.PullRequestID)
 
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to merge pull request", "error", err.Error())
 		return
 	}
 
@@ -84,7 +83,6 @@ func (h *Handler) reassign(c *gin.Context) {
 	}
 	res, err := h.services.ReassignPullRequestReviewer(req.PullRequestID, req.OldReviewerID)
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
@@ -106,6 +104,7 @@ func (h *Handler) reassign(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to reassign pull request reviewer", "error", err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, res)

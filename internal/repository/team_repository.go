@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"pr_reviewer/internal/model"
@@ -25,14 +26,15 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
 
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 		}
 	}()
 
 	query := `INSERT INTO teams(name) VALUES ($1)`
-	_, err = tx.Exec(query, teamName)
+	_, err = tx.ExecContext(context.Background(), query, teamName)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == UniqueViolationCode {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == UniqueViolationCode {
 			return ErrTeamExists
 		}
 		return err
@@ -48,7 +50,7 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
     `
 
 	for _, m := range *members {
-		_, err = tx.Exec(userQuery, m.ID, m.Username, teamName, m.IsActive)
+		_, err = tx.ExecContext(context.Background(), userQuery, m.ID, m.Username, teamName, m.IsActive)
 		if err != nil {
 			return err
 		}
@@ -58,7 +60,7 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
 }
 
 func (r *TeamRepository) GetTeamAndMembers(teamName string) (model.Team, *[]model.User, error) {
-	query := `SELECT * FROM teams WHERE name = $1`
+	query := `SELECT name FROM teams WHERE name = $1`
 
 	var team model.Team
 	err := r.db.Get(&team, query, teamName)
@@ -71,7 +73,7 @@ func (r *TeamRepository) GetTeamAndMembers(teamName string) (model.Team, *[]mode
 	}
 
 	query = `
-		SELECT * FROM users
+		SELECT id, username, team_name, is_active FROM users
 		WHERE team_name = $1;
 	`
 

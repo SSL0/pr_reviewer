@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"pr_reviewer/internal/model"
 
 	"github.com/jmoiron/sqlx"
@@ -63,7 +62,6 @@ func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullReq
 	err = r.db.Select(&result, query, userID)
 
 	if err != nil {
-		log.Println(err)
 		return []model.PullRequest{}, err
 	}
 

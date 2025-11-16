@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"pr_reviewer/internal/domain"
 	"pr_reviewer/internal/dto"
@@ -38,7 +37,6 @@ func (h *Handler) add(c *gin.Context) {
 				Username: m.Username,
 				IsActive: m.IsActive,
 			})
-
 	}
 
 	team, err := h.services.AddTeam(
@@ -46,12 +44,12 @@ func (h *Handler) add(c *gin.Context) {
 	)
 
 	if err != nil {
-		log.Println(err)
 		if errors.Is(err, service.ErrTeamExists) {
 			c.JSON(http.StatusBadRequest, h.jsonError(ErrCodeTeamExists, "team_name already exists"))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to create pull request", "error", err.Error())
 		return
 	}
 
@@ -64,14 +62,13 @@ func (h *Handler) get(c *gin.Context) {
 	team, err := h.services.GetTeam(teamName)
 
 	if err != nil {
-		log.Println(err)
-
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
 			return
 		}
 
 		c.JSON(http.StatusInternalServerError, "internal server error")
+		h.logger.Error("failed to create pull request", "error", err.Error())
 		return
 	}
 

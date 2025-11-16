@@ -1,9 +1,8 @@
 package repository
 
 import (
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/github"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"context"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,7 +16,7 @@ func NewPostgres(url string) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
+	err = db.PingContext(context.Background())
 	if err != nil {
 		return nil, err
 	}

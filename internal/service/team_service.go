@@ -37,10 +37,10 @@ func (s *TeamService) AddTeam(team domain.Team) (dto.Team, error) {
 		return dto.Team{}, ErrTeamExists
 	}
 
-	var TeamMembersDTO []dto.TeamMember
+	var teamMembersDTO []dto.TeamMember
 
 	for _, m := range team.Members {
-		TeamMembersDTO = append(TeamMembersDTO,
+		teamMembersDTO = append(teamMembersDTO,
 			dto.TeamMember{
 				UserID:   m.UserID,
 				Username: m.Username,
@@ -50,7 +50,7 @@ func (s *TeamService) AddTeam(team domain.Team) (dto.Team, error) {
 
 	return dto.Team{
 		TeamName: team.TeamName,
-		Members:  TeamMembersDTO,
+		Members:  teamMembersDTO,
 	}, err
 }
 
