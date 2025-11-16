@@ -18,7 +18,7 @@ func NewTeamService(repo *repository.Repository) *TeamService {
 	}
 }
 
-func (s *TeamService) Add(team domain.Team) (dto.Team, error) {
+func (s *TeamService) AddTeam(team domain.Team) (dto.Team, error) {
 	var teamUsers []model.User
 
 	for _, m := range team.Members {
@@ -54,7 +54,7 @@ func (s *TeamService) Add(team domain.Team) (dto.Team, error) {
 	}, err
 }
 
-func (s *TeamService) Get(teamName string) (dto.Team, error) {
+func (s *TeamService) GetTeam(teamName string) (dto.Team, error) {
 	team, users, err := s.repo.GetTeamAndMembers(teamName)
 
 	if err != nil {

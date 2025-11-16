@@ -8,19 +8,19 @@ import (
 )
 
 type Team interface {
-	Add(team domain.Team) (dto.Team, error)
-	Get(teamName string) (dto.Team, error)
+	AddTeam(team domain.Team) (dto.Team, error)
+	GetTeam(teamName string) (dto.Team, error)
 }
 
 type User interface {
-	SetIsActive(userID string, isActive bool) (model.User, error)
-	GetReview(userID string) (dto.UserReviewResponse, error)
+	SetUserIsActive(userID string, isActive bool) (model.User, error)
+	GetUserReviews(userID string) (dto.UserReviewResponse, error)
 }
 
 type PullReqeust interface {
-	Create(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error)
-	Merge(pullReqeustID string) (dto.MergePullRequestResponse, error)
-	Reassign(pullRequestID string, oldUserID string) (dto.ReassignPullRequestResponse, error)
+	CreatePullRequest(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error)
+	MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error)
+	ReassignPullRequestReviewer(pullRequestID string, oldUserID string) (dto.ReassignPullRequestResponse, error)
 }
 
 type Service struct {

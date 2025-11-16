@@ -41,7 +41,7 @@ func (h *Handler) add(c *gin.Context) {
 
 	}
 
-	team, err := h.services.Add(
+	team, err := h.services.AddTeam(
 		domain.Team{TeamName: req.TeamName, Members: domainTeamMembers},
 	)
 
@@ -61,7 +61,7 @@ func (h *Handler) add(c *gin.Context) {
 func (h *Handler) get(c *gin.Context) {
 	teamName := c.Query("team_name")
 
-	team, err := h.services.Get(teamName)
+	team, err := h.services.GetTeam(teamName)
 
 	if err != nil {
 		log.Println(err)

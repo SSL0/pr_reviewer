@@ -17,7 +17,7 @@ func NewUserService(repo *repository.Repository) *UserService {
 	}
 }
 
-func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, error) {
+func (s *UserService) SetUserIsActive(userID string, isActive bool) (model.User, error) {
 	user, err := s.repo.SetIsActive(userID, isActive)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
@@ -30,7 +30,7 @@ func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, err
 	return user, nil
 }
 
-func (s *UserService) GetReview(userID string) (dto.UserReviewResponse, error) {
+func (s *UserService) GetUserReviews(userID string) (dto.UserReviewResponse, error) {
 	prs, err := s.repo.GetAssignedPullRequests(userID)
 
 	if err != nil {

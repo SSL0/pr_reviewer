@@ -17,7 +17,7 @@ func NewPullRequestService(repo *repository.Repository) *PullRequestService {
 	}
 }
 
-func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error) {
+func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error) {
 	pr, reviewersIDs, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
 	if err != nil {
 
@@ -46,7 +46,7 @@ func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID str
 	return dtoPR, nil
 }
 
-func (s *PullRequestService) Merge(pullReqeustID string) (dto.MergePullRequestResponse, error) {
+func (s *PullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error) {
 	pr, reviewers, err := s.repo.SetPullRequestStatus(pullReqeustID, model.PullRequestMerged)
 
 	if err != nil {
@@ -71,7 +71,7 @@ func (s *PullRequestService) Merge(pullReqeustID string) (dto.MergePullRequestRe
 	return mergePRResponse, nil
 }
 
-func (s *PullRequestService) Reassign(pullRequestID string, oldUserID string) (
+func (s *PullRequestService) ReassignPullRequestReviewer(pullRequestID string, oldUserID string) (
 	dto.ReassignPullRequestResponse, error,
 ) {
 	pr, reviewers, replacedBy, err := s.repo.ReassignPullRequestReviewer(pullRequestID, oldUserID)
