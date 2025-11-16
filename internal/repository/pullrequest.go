@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"pr_reviewer/internal/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -55,13 +57,59 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 	for rows.Next() {
 		var reviewerID string
 
-		rows.Scan(&reviewerID)
+		if err := rows.Scan(&reviewerID); err != nil {
+			return model.PullRequest{}, nil, err
+		}
+
 		_, err := r.db.Exec(query, id, reviewerID)
 		if err != nil {
 			return model.PullRequest{}, nil, err
 		}
 
 		reviewers = append(reviewers, reviewerID)
+	}
+
+	return pr, reviewers, nil
+}
+
+func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.PullRequestStatus) (model.PullRequest, []string, error) {
+	query := `
+		UPDATE pull_requests
+		SET status = $1, merged_at = COALESCE(merged_at, NOW())
+		WHERE id = $2
+		RETURNING id, name, author_id, status, created_at, merged_at
+	`
+
+	var pr model.PullRequest
+
+	err := r.db.Get(&pr, query, status, id)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.PullRequest{}, nil, ErrPRNotFound
+		}
+
+		return model.PullRequest{}, nil, err
+	}
+
+	query = `
+		SELECT reviewer_id FROM pull_request_reviewers
+	 	WHERE pull_request_id = $1
+	`
+	rows, err := r.db.Queryx(query, id)
+
+	if err != nil {
+		return model.PullRequest{}, nil, err
+	}
+
+	var reviewers []string
+
+	for rows.Next() {
+		var r string
+		if err := rows.Scan(&r); err != nil {
+			return model.PullRequest{}, nil, err
+		}
+		reviewers = append(reviewers, r)
 	}
 
 	return pr, reviewers, nil

@@ -45,9 +45,31 @@ func (s *PullRequestService) Create(pullRequestID, pullRequestName, authorID str
 	return dtoPR, nil
 }
 
-func (s *PullRequestService) Merge(pullReqeustID string) (model.PullRequest, error) {
-	return model.PullRequest{}, nil
+func (s *PullRequestService) Merge(pullReqeustID string) (dto.MergePullRequestResponse, error) {
+	pr, reviewers, err := s.repo.SetPullRequestStatus(pullReqeustID, model.PullRequestMerged)
+
+	if err != nil {
+		if errors.Is(err, repository.ErrPRNotFound) {
+			return dto.MergePullRequestResponse{}, ErrResourceNotFound
+		}
+		return dto.MergePullRequestResponse{}, err
+	}
+
+	mergePRResponse := dto.MergePullRequestResponse{
+		PullRequestID:   pr.ID,
+		PullRequestName: pr.Name,
+		AuthorID:        pr.AuthorID,
+		Status:          string(pr.Status),
+		MergedAt:        pr.MergedAt,
+	}
+
+	for _, r := range reviewers {
+		mergePRResponse.AssignedReviewers = append(mergePRResponse.AssignedReviewers, r)
+	}
+
+	return mergePRResponse, nil
 }
+
 func (s *PullRequestService) Reassign(pullRequestID string, oldUserID string) (model.PullRequest, string, error) {
 	return model.PullRequest{}, "", nil
 }

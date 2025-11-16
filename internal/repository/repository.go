@@ -18,6 +18,7 @@ type Team interface {
 
 type PullRequest interface {
 	CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error)
+	SetPullRequestStatus(id string, status model.PullRequestStatus) (model.PullRequest, []string, error)
 }
 
 type Repository struct {

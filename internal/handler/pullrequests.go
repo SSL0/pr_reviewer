@@ -54,7 +54,27 @@ func (h *Handler) create(c *gin.Context) {
 }
 
 func (h *Handler) merge(c *gin.Context) {
+	var req dto.MergePullRequestRequest
 
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, "invalid body data")
+		return
+	}
+
+	pr, err := h.services.Merge(req.PullRequestID)
+
+	if err != nil {
+		log.Println(err)
+		if errors.Is(err, service.ErrResourceNotFound) {
+			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	c.JSON(http.StatusOK, pr)
 }
 
 func (h *Handler) reassign(c *gin.Context) {

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"pr_reviewer/internal/model"
 
 	"github.com/jmoiron/sqlx"
@@ -14,15 +16,6 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) GetUser(userID string) (model.User, error) {
-	query := `SELECT * FROM users WHERE id = $1`
-
-	var user model.User
-
-	err := r.db.QueryRowx(query, userID).StructScan(user)
-	return user, err
-}
-
 func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, error) {
 	query := `
 		UPDATE users
@@ -34,7 +27,14 @@ func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, 
 	var result model.User
 	err := r.db.Get(&result, query, isActive, userID)
 
-	return result, err
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.User{}, ErrUserNotFound
+		}
+		return model.User{}, err
+	}
+
+	return result, nil
 }
 
 func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullRequest, error) {
@@ -56,9 +56,7 @@ func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullReq
 
 	for rows.Next() {
 		var pr model.PullRequest
-		err := rows.StructScan(&pr)
-
-		if err != nil {
+		if err := rows.StructScan(&pr); err != nil {
 			return []model.PullRequest{}, err
 		}
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"database/sql"
+	"errors"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/model"
 	"pr_reviewer/internal/repository"
@@ -20,7 +20,7 @@ func NewUserService(repo *repository.Repository) *UserService {
 func (s *UserService) SetIsActive(userID string, isActive bool) (model.User, error) {
 	user, err := s.repo.SetIsActive(userID, isActive)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, repository.ErrUserNotFound) {
 			return model.User{}, ErrResourceNotFound
 		}
 
@@ -49,7 +49,7 @@ func (s *UserService) GetReview(userID string) (dto.UserReviewResponse, error) {
 				PullRequestID:   pr.ID,
 				PullRequestName: pr.Name,
 				AuthorID:        pr.AuthorID,
-				Status:          pr.Status,
+				Status:          string(pr.Status),
 			},
 		)
 	}

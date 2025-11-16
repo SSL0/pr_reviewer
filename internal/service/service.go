@@ -18,7 +18,7 @@ type User interface {
 
 type PullReqeust interface {
 	Create(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error)
-	Merge(pullReqeustID string) (model.PullRequest, error)
+	Merge(pullReqeustID string) (dto.MergePullRequestResponse, error)
 	Reassign(pullRequestID string, oldUserID string) (model.PullRequest, string, error)
 }
 

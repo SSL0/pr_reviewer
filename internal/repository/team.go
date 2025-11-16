@@ -61,9 +61,8 @@ func (r *TeamRepository) GetTeamMembers(teamName string) (*[]model.User, error) 
 
 	for rows.Next() {
 		var user model.User
-		err := rows.StructScan(&user)
 
-		if err != nil {
+		if err := rows.StructScan(&user); err != nil {
 			return nil, err
 		}
 		result = append(result, user)
