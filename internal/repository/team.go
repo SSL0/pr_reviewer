@@ -16,10 +16,19 @@ func NewTeamRepository(db *sqlx.DB) *TeamRepository {
 }
 
 func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
 
 	query := `INSERT INTO teams(name) VALUES ($1)`
-
-	_, err := r.db.Exec(query, teamName)
+	_, err = tx.Exec(query, teamName)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == UniqueViolationCode {
 			return ErrTeamExists
@@ -28,22 +37,22 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
 	}
 
 	userQuery := `
-		INSERT INTO users(id, username, team_name, is_active)
-		VALUES ($1, $2, $3, $4)
-		ON CONFLICT (id) DO UPDATE
-		SET team_name = EXCLUDED.team_name,
-		    is_active = EXCLUDED.is_active,
-		    username = EXCLUDED.username;
-	`
+        INSERT INTO users(id, username, team_name, is_active)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (id) DO UPDATE
+        SET team_name = EXCLUDED.team_name,
+            is_active = EXCLUDED.is_active,
+            username = EXCLUDED.username;
+    `
 
 	for _, m := range *members {
-		_, err := r.db.Exec(userQuery, m.ID, m.Username, teamName, m.IsActive)
+		_, err = tx.Exec(userQuery, m.ID, m.Username, teamName, m.IsActive)
 		if err != nil {
 			return err
 		}
 	}
 
-	return nil
+	return tx.Commit()
 }
 
 func (r *TeamRepository) GetTeamMembers(teamName string) (*[]model.User, error) {

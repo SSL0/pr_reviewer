@@ -18,17 +18,26 @@ func NewPullRequestRepository(db *sqlx.DB) *PullRequestRepository {
 }
 
 func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error) {
-	query := `
-		INSERT INTO pull_requests(id, name, author_id, status)
-		VALUES ($1, $2, $3, 'OPEN')
-		RETURNING id, name, author_id, status, created_at
-	`
-
-	var pr model.PullRequest
-	err := r.db.Get(&pr, query, id, name, authorID)
+	tx, err := r.db.Beginx()
 	if err != nil {
-		pgErr, ok := err.(*pgconn.PgError)
-		if ok {
+		return model.PullRequest{}, nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	query := `
+        INSERT INTO pull_requests(id, name, author_id, status)
+        VALUES ($1, $2, $3, 'OPEN')
+        RETURNING id, name, author_id, status, created_at
+    `
+	var pr model.PullRequest
+	err = tx.Get(&pr, query, id, name, authorID)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
 			switch pgErr.Code {
 			case UniqueViolationCode:
 				return model.PullRequest{}, nil, ErrPRExists
@@ -36,37 +45,43 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 				return model.PullRequest{}, nil, ErrUserNotFound
 			}
 		}
-
 		return model.PullRequest{}, nil, err
 	}
 
 	query = `
-		SELECT id FROM users
+        SELECT id FROM users
         WHERE team_name = (SELECT team_name FROM users WHERE id = $1) AND id != $1
         ORDER BY RANDOM() LIMIT 2
     `
-
-	rows, err := r.db.Queryx(query, authorID)
+	rows, err := tx.Queryx(query, authorID)
 	if err != nil {
 		return model.PullRequest{}, nil, err
 	}
 	defer rows.Close()
 
-	query = `INSERT INTO pull_request_reviewers(pull_request_id, reviewer_id) VALUES ($1, $2)`
+	insertQuery := `INSERT INTO pull_request_reviewers(pull_request_id, reviewer_id) VALUES ($1, $2)`
 	var reviewers []string
 	for rows.Next() {
 		var reviewerID string
-
 		if err := rows.Scan(&reviewerID); err != nil {
 			return model.PullRequest{}, nil, err
 		}
 
-		_, err := r.db.Exec(query, id, reviewerID)
+		_, err := tx.Exec(insertQuery, id, reviewerID)
 		if err != nil {
 			return model.PullRequest{}, nil, err
 		}
 
 		reviewers = append(reviewers, reviewerID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return model.PullRequest{}, nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return model.PullRequest{}, nil, err
 	}
 
 	return pr, reviewers, nil
