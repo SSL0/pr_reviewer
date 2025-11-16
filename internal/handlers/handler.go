@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"pr_reviewer/internal/service"

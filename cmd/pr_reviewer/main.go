@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"pr_reviewer/internal/config"
-	"pr_reviewer/internal/handler"
 	"pr_reviewer/internal/repository"
 	"pr_reviewer/internal/service"
 )
@@ -26,7 +25,7 @@ func main() {
 
 	repo := repository.NewRepository(postgres)
 	svc := service.NewService(repo)
-	handler := handler.NewHandler(svc)
+	handler := handlers.NewHandler(svc)
 
 	err = handler.RegisterRoutes().Run(cfg.ListeningAddress)
 	if err != nil {
