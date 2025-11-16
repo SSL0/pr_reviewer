@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"pr_reviewer/internal/dto"
 	"pr_reviewer/internal/service"
@@ -33,6 +34,7 @@ func (h *Handler) create(c *gin.Context) {
 	pr, err := h.services.Create(req.PullRequestID, req.PullRequestName, req.AuthorID)
 
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
 			return

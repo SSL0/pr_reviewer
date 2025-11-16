@@ -16,13 +16,12 @@ func NewTeamRepository(db *sqlx.DB) *TeamRepository {
 }
 
 func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
-	const uniqueViolationCode = "23505"
 
 	query := `INSERT INTO teams(name) VALUES ($1)`
 
 	_, err := r.db.Exec(query, teamName)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == uniqueViolationCode {
+		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == UniqueViolationCode {
 			return ErrTeamExists
 		}
 		return err

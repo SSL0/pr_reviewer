@@ -25,11 +25,11 @@ func (h *Handler) setIsActive(c *gin.Context) {
 
 	user, err := h.services.SetIsActive(req.UserID, req.IsActive)
 	if err != nil {
+		log.Println(err)
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrorCodeNotFound, "resource not found"))
 			return
 		}
-		log.Println(err)
 		c.JSON(http.StatusInternalServerError, "internal server error")
 		return
 	}

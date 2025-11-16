@@ -3,6 +3,7 @@ package repository
 import (
 	"pr_reviewer/internal/model"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,35 +16,25 @@ func NewPullRequestRepository(db *sqlx.DB) *PullRequestRepository {
 }
 
 func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
-
-	var exists bool
-	err := r.db.Get(&exists, query, authorID)
-	if err != nil {
-		return model.PullRequest{}, nil, err
-	}
-
-	if !exists {
-		return model.PullRequest{}, nil, ErrUserNotFound
-	}
-
-	err = r.db.Get(&exists, `SELECT EXISTS(SELECT 1 FROM pull_requests WHERE id = $1)`, id)
-	if err != nil {
-		return model.PullRequest{}, nil, err
-	}
-	if exists {
-		return model.PullRequest{}, nil, ErrPRExists
-	}
-
-	query = `
+	query := `
 		INSERT INTO pull_requests(id, name, author_id, status)
 		VALUES ($1, $2, $3, 'OPEN')
 		RETURNING id, name, author_id, status, created_at
 	`
 
 	var pr model.PullRequest
-	err = r.db.Get(&pr, query, id, name, authorID)
+	err := r.db.Get(&pr, query, id, name, authorID)
 	if err != nil {
+		pgErr, ok := err.(*pgconn.PgError)
+		if ok {
+			switch pgErr.Code {
+			case UniqueViolationCode:
+				return model.PullRequest{}, nil, ErrPRExists
+			case ForeignKeyViolationCode:
+				return model.PullRequest{}, nil, ErrUserNotFound
+			}
+		}
+
 		return model.PullRequest{}, nil, err
 	}
 
