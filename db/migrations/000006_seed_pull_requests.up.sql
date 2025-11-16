@@ -1,11 +1,11 @@
 
 INSERT INTO pull_requests (id, name, author_id, status) VALUES
-('pr-1','Add login feature','u1','open'),
-('pr-2','Fix payment bug','u5','merged'),
-('pr-3','Update CI pipeline','u6','open'),
-('pr-4','Frontend redesign','u3','closed'),
-('pr-5','Mobile app bugfix','u8','open'),
-('pr-6','Data migration','u9','open');
+('pr-1','Add login feature','u1','OPEN'),
+('pr-2','Fix payment bug','u5','MERGED'),
+('pr-3','Update CI pipeline','u6','OPEN'),
+('pr-4','Frontend redesign','u3','MERGED'),
+('pr-5','Mobile app bugfix','u8','OPEN'),
+('pr-6','Data migration','u9','OPEN');
 
 INSERT INTO pull_request_reviewers (pull_request_id, reviewer_id) VALUES
 ('pr-1','u2'), ('pr-1','u3'),
