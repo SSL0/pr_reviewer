@@ -8,15 +8,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *sqlx.DB) *userRepository {
+	return &userRepository{db: db}
 }
 
-func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, error) {
+func (r *userRepository) SetIsActive(userID string, isActive bool) (model.User, error) {
 	query := `
 		UPDATE users
 		SET is_active = $1
@@ -37,7 +37,7 @@ func (r *UserRepository) SetIsActive(userID string, isActive bool) (model.User, 
 	return result, nil
 }
 
-func (r *UserRepository) GetAssignedPullRequests(userID string) ([]model.PullRequest, error) {
+func (r *userRepository) GetAssignedPullRequests(userID string) ([]model.PullRequest, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
 
 	var exsits bool

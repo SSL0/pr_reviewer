@@ -30,7 +30,7 @@ func (h *Handler) create(c *gin.Context) {
 		return
 	}
 
-	res, err := h.services.CreatePullRequest(req.PullRequestID, req.PullRequestName, req.AuthorID)
+	res, err := h.Services.CreatePullRequest(req.PullRequestID, req.PullRequestName, req.AuthorID)
 
 	if err != nil {
 		if errors.Is(err, service.ErrResourceNotFound) {
@@ -59,7 +59,7 @@ func (h *Handler) merge(c *gin.Context) {
 		return
 	}
 
-	res, err := h.services.MergePullRequest(req.PullRequestID)
+	res, err := h.Services.MergePullRequest(req.PullRequestID)
 
 	if err != nil {
 		if errors.Is(err, service.ErrResourceNotFound) {
@@ -81,7 +81,7 @@ func (h *Handler) reassign(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "invalid body data")
 		return
 	}
-	res, err := h.services.ReassignPullRequestReviewer(req.PullRequestID, req.OldReviewerID)
+	res, err := h.Services.ReassignPullRequestReviewer(req.PullRequestID, req.OldReviewerID)
 	if err != nil {
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))

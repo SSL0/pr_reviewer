@@ -10,15 +10,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type TeamRepository struct {
+type teamRepository struct {
 	db *sqlx.DB
 }
 
-func NewTeamRepository(db *sqlx.DB) *TeamRepository {
-	return &TeamRepository{db: db}
+func NewTeamRepository(db *sqlx.DB) *teamRepository {
+	return &teamRepository{db: db}
 }
 
-func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
+func (r *teamRepository) AddTeam(teamName string, members *[]model.User) error {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (r *TeamRepository) AddTeam(teamName string, members *[]model.User) error {
 	return tx.Commit()
 }
 
-func (r *TeamRepository) GetTeamAndMembers(teamName string) (model.Team, *[]model.User, error) {
+func (r *teamRepository) GetTeamAndMembers(teamName string) (model.Team, *[]model.User, error) {
 	query := `SELECT name FROM teams WHERE name = $1`
 
 	var team model.Team

@@ -22,7 +22,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.SetUserIsActive(req.UserID, req.IsActive)
+	user, err := h.Services.SetUserIsActive(req.UserID, req.IsActive)
 	if err != nil {
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))
@@ -39,7 +39,7 @@ func (h *Handler) setIsActive(c *gin.Context) {
 func (h *Handler) getReview(c *gin.Context) {
 	userID := c.Query("user_id")
 
-	res, err := h.services.GetUserReviews(userID)
+	res, err := h.Services.GetUserReviews(userID)
 	if err != nil {
 		if errors.Is(err, service.ErrResourceNotFound) {
 			c.JSON(http.StatusNotFound, h.jsonError(ErrCodeNotFound, "resource not found"))

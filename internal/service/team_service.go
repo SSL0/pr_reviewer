@@ -8,17 +8,17 @@ import (
 	"pr_reviewer/internal/repository"
 )
 
-type TeamService struct {
+type teamService struct {
 	repo *repository.Repository
 }
 
-func NewTeamService(repo *repository.Repository) *TeamService {
-	return &TeamService{
+func NewTeamService(repo *repository.Repository) *teamService {
+	return &teamService{
 		repo: repo,
 	}
 }
 
-func (s *TeamService) AddTeam(team domain.Team) (dto.Team, error) {
+func (s *teamService) AddTeam(team domain.Team) (dto.Team, error) {
 	var teamUsers []model.User
 
 	for _, m := range team.Members {
@@ -54,7 +54,7 @@ func (s *TeamService) AddTeam(team domain.Team) (dto.Team, error) {
 	}, err
 }
 
-func (s *TeamService) GetTeam(teamName string) (dto.Team, error) {
+func (s *teamService) GetTeam(teamName string) (dto.Team, error) {
 	team, users, err := s.repo.GetTeamAndMembers(teamName)
 
 	if err != nil {

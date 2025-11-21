@@ -7,17 +7,17 @@ import (
 	"pr_reviewer/internal/repository"
 )
 
-type UserService struct {
+type userService struct {
 	repo *repository.Repository
 }
 
-func NewUserService(repo *repository.Repository) *UserService {
-	return &UserService{
+func NewUserService(repo *repository.Repository) *userService {
+	return &userService{
 		repo: repo,
 	}
 }
 
-func (s *UserService) SetUserIsActive(userID string, isActive bool) (model.User, error) {
+func (s *userService) SetUserIsActive(userID string, isActive bool) (model.User, error) {
 	user, err := s.repo.SetIsActive(userID, isActive)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
@@ -30,7 +30,7 @@ func (s *UserService) SetUserIsActive(userID string, isActive bool) (model.User,
 	return user, nil
 }
 
-func (s *UserService) GetUserReviews(userID string) (dto.UserReviewResponse, error) {
+func (s *userService) GetUserReviews(userID string) (dto.UserReviewResponse, error) {
 	prs, err := s.repo.GetAssignedPullRequests(userID)
 
 	if err != nil {

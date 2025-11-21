@@ -24,12 +24,12 @@ type ErrorResponse struct {
 }
 
 type Handler struct {
-	services *service.Service
+	Services *service.Service
 	logger   *slog.Logger
 }
 
 func NewHandler(services *service.Service, logger *slog.Logger) *Handler {
-	return &Handler{services: services, logger: logger}
+	return &Handler{Services: services, logger: logger}
 }
 
 func (h *Handler) RegisterRoutes() *gin.Engine {

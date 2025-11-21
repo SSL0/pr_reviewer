@@ -7,32 +7,32 @@ import (
 	"pr_reviewer/internal/repository"
 )
 
-type Team interface {
+type TeamService interface {
 	AddTeam(team domain.Team) (dto.Team, error)
 	GetTeam(teamName string) (dto.Team, error)
 }
 
-type User interface {
+type UserService interface {
 	SetUserIsActive(userID string, isActive bool) (model.User, error)
 	GetUserReviews(userID string) (dto.UserReviewResponse, error)
 }
 
-type PullReqeust interface {
+type PullRequestService interface {
 	CreatePullRequest(pullRequestID, pullRequestName, authorID string) (dto.PullRequest, error)
 	MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error)
 	ReassignPullRequestReviewer(pullRequestID string, oldUserID string) (dto.ReassignPullRequestResponse, error)
 }
 
 type Service struct {
-	Team
-	User
-	PullReqeust
+	TeamService
+	UserService
+	PullRequestService
 }
 
 func NewService(repo *repository.Repository) *Service {
 	return &Service{
-		Team:        NewTeamService(repo),
-		User:        NewUserService(repo),
-		PullReqeust: NewPullRequestService(repo),
+		TeamService:        NewTeamService(repo),
+		UserService:        NewUserService(repo),
+		PullRequestService: NewPullRequestService(repo),
 	}
 }

@@ -7,17 +7,17 @@ import (
 	"pr_reviewer/internal/repository"
 )
 
-type PullRequestService struct {
+type pullRequestService struct {
 	repo *repository.Repository
 }
 
-func NewPullRequestService(repo *repository.Repository) *PullRequestService {
-	return &PullRequestService{
+func NewPullRequestService(repo *repository.Repository) *pullRequestService {
+	return &pullRequestService{
 		repo: repo,
 	}
 }
 
-func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (
+func (s *pullRequestService) CreatePullRequest(pullRequestID, pullRequestName, authorID string) (
 	dto.PullRequest, error,
 ) {
 	pr, reviewersIDs, err := s.repo.CreatePullRequest(pullRequestID, pullRequestName, authorID)
@@ -45,7 +45,7 @@ func (s *PullRequestService) CreatePullRequest(pullRequestID, pullRequestName, a
 	return dtoPR, nil
 }
 
-func (s *PullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error) {
+func (s *pullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePullRequestResponse, error) {
 	pr, reviewersIDs, err := s.repo.SetPullRequestStatus(pullReqeustID, model.PullRequestMerged)
 
 	if err != nil {
@@ -66,7 +66,7 @@ func (s *PullRequestService) MergePullRequest(pullReqeustID string) (dto.MergePu
 	return mergePRResponse, nil
 }
 
-func (s *PullRequestService) ReassignPullRequestReviewer(pullRequestID string, oldUserID string) (
+func (s *pullRequestService) ReassignPullRequestReviewer(pullRequestID string, oldUserID string) (
 	dto.ReassignPullRequestResponse, error,
 ) {
 	pr, reviewers, replacedBy, err := s.repo.ReassignPullRequestReviewer(pullRequestID, oldUserID)

@@ -10,15 +10,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type PullRequestRepository struct {
+type pullRequestRepository struct {
 	db *sqlx.DB
 }
 
-func NewPullRequestRepository(db *sqlx.DB) *PullRequestRepository {
-	return &PullRequestRepository{db: db}
+func NewPullRequestRepository(db *sqlx.DB) *pullRequestRepository {
+	return &pullRequestRepository{db: db}
 }
 
-func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error) {
+func (r *pullRequestRepository) CreatePullRequest(id, name, authorID string) (model.PullRequest, []string, error) {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return model.PullRequest{}, nil, err
@@ -78,7 +78,7 @@ func (r *PullRequestRepository) CreatePullRequest(id, name, authorID string) (mo
 	return pr, reviewersIDs, nil
 }
 
-func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.PullRequestStatus) (
+func (r *pullRequestRepository) SetPullRequestStatus(id string, status model.PullRequestStatus) (
 	model.PullRequest, []string, error,
 ) {
 	query := `
@@ -113,7 +113,7 @@ func (r *PullRequestRepository) SetPullRequestStatus(id string, status model.Pul
 	return pr, reviewersIDs, nil
 }
 
-func (r *PullRequestRepository) ReassignPullRequestReviewer(
+func (r *pullRequestRepository) ReassignPullRequestReviewer(
 	pullRequestID string,
 	oldReviewerID string,
 ) (model.PullRequest, []string, string, error) {
